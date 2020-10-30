@@ -1,2 +1,3 @@
-# tf2-benchmarks
-Benchmarks for Tensorflow 2.X
+# TensorFlow 2.x Benchmarks
+
+Benchmarks for Tensorflow 2.x
