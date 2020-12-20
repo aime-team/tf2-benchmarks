@@ -1,3 +1,9 @@
 # TensorFlow 2.x Benchmarks
 
-Benchmarks for Tensorflow 2.x
+ImageNet (ResNet50) benchmarks for Tensorflow 2.x
+
+## Usage
+
+```
+python tf2-benchmarks.py --model resnet50 --enable_xla --batch_size 64 --num_gpus 1
+```
