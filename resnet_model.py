@@ -29,11 +29,12 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from tensorflow.python.keras import backend
-from tensorflow.python.keras import initializers
-from tensorflow.python.keras import models
-from tensorflow.python.keras import regularizers
+from tensorflow.keras import initializers
+from tensorflow.keras import backend
+from tensorflow.keras import models
+from tensorflow.keras import regularizers
 import imagenet_preprocessing
+
 
 L2_WEIGHT_DECAY = 1e-4
 BATCH_NORM_DECAY = 0.9

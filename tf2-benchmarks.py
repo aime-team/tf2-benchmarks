@@ -19,6 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import sys
 
 from absl import app
 from absl import flags
@@ -190,7 +191,6 @@ def run(flags_obj):
     elif flags_obj.model == 'resnet50_v1.5':
       print("--- ResNet50 V1.5 ---")
       model = resnet_model.resnet50v1_5(input_shape=input_shape, num_classes=imagenet_preprocessing.NUM_CLASSES)
-#      model = tf.keras.applications.ResNet50(input_tensor=img_input, include_top=True, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'resnet152':
       print("--- Resnet152 ---")
       model = tf.keras.applications.ResNet152(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
@@ -200,6 +200,8 @@ def run(flags_obj):
     elif flags_obj.model == 'mobilenet':
       print("--- MobileNet ---")
       model = tf.keras.applications.MobileNetV2(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
+    else:
+      sys.exit("unknown model: " + flags_obj.model)
 
     if flags_obj.pretrained_filepath:
       model.load_weights(flags_obj.pretrained_filepath)
