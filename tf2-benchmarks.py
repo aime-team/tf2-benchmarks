@@ -49,15 +49,16 @@ def run(flags_obj):
   Returns:
     Dictionary of training and eval stats.
   """
-  keras_utils.set_session_config(
-      enable_eager=flags_obj.enable_eager,
-      enable_xla=flags_obj.enable_xla)
+  if flags_obj.enable_xla:
+    print("--- Enable XLA")   
+    tf.config.optimizer.set_jit(True)
 
   # Execute flag override logic for better model performance
-  if flags_obj.tf_gpu_thread_mode:
+  if flags_obj.gpu_thread_private:
+    print("--- Enable GPU Private Thread Mode")   
     keras_utils.set_gpu_thread_mode_and_count(
         per_gpu_thread_count=flags_obj.per_gpu_thread_count,
-        gpu_thread_mode=flags_obj.tf_gpu_thread_mode,
+        gpu_thread_mode="gpu_private",
         num_gpus=flags_obj.num_gpus,
         datasets_num_private_threads=flags_obj.datasets_num_private_threads)
 
@@ -97,6 +98,7 @@ def run(flags_obj):
 
   # pylint: disable=protected-access
   if flags_obj.use_synthetic_data:
+    print("--- Using Synthetic Data")
     distribution_utils.set_up_synthetic_data()
     input_fn = common.get_synth_input_fn(
         height=imagenet_preprocessing.DEFAULT_IMAGE_SIZE,
@@ -119,7 +121,7 @@ def run(flags_obj):
   # This use_keras_image_data_format flags indicates whether image preprocessor
   # output format should be same as the keras backend image data format or just
   # channel-last format.
-#  use_keras_image_data_format = (flags_obj.model == 'mobilenet')
+  #  use_keras_image_data_format = (flags_obj.model == 'mobilenet')
   use_keras_image_data_format = False
   train_input_dataset = input_fn(
       is_training=True,
@@ -177,16 +179,18 @@ def run(flags_obj):
       optimizer = tf.train.experimental.enable_mixed_precision_graph_rewrite(
           optimizer)
 
+    print("--- Image Data Format: " + tf.keras.backend.image_data_format())
     if tf.keras.backend.image_data_format() == 'channels_first':
       input_shape = [3, 224, 224]
     else:
       input_shape = [224, 224, 3]
 
+    print("--- Batch Size: " + str(flags_obj.batch_size))
+
     img_input = tf.keras.layers.Input(shape=input_shape, batch_size=flags_obj.batch_size)
 
     if flags_obj.model == 'resnet50':
       print("--- ResNet50 ---")
-      print("IMAGE_DATA_FORMAT: " + tf.keras.backend.image_data_format())
       model = tf.keras.applications.ResNet50(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'resnet50_v1.5':
       print("--- ResNet50 V1.5 ---")
@@ -234,10 +238,6 @@ def run(flags_obj):
     # Only build the training graph. This reduces memory usage introduced by
     # control flow ops in layers that have different implementations for
     # training and inference (e.g., batch norm).
-    if flags_obj.set_learning_phase_to_train:
-      # TODO(haoyuzhang): Understand slowdown of setting learning phase when
-      # not using distribution strategy.
-      tf.keras.backend.set_learning_phase(1)
     num_eval_steps = None
     validation_data = None
 

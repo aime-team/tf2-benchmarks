@@ -199,41 +199,6 @@ class ProfilerCallback(tf.keras.callbacks.Callback):
                    self.start_step, self.stop_step, self.log_dir)
 
 
-def set_session_config(enable_eager=False,
-                       enable_xla=False):
-  """Sets the session config."""
-  if is_v2_0():
-    set_config_v2(enable_xla=enable_xla)
-  else:
-    config = get_config_proto_v1(enable_xla=enable_xla)
-    if enable_eager:
-      tf.compat.v1.enable_eager_execution(config=config)
-    else:
-      sess = tf.compat.v1.Session(config=config)
-      tf.compat.v1.keras.backend.set_session(sess)
-
-
-def get_config_proto_v1(enable_xla=False):
-  """Return config proto according to flag settings, or None to use default."""
-  config = None
-  if enable_xla:
-    config = tf.compat.v1.ConfigProto()
-    config.graph_options.optimizer_options.global_jit_level = (
-        tf.OptimizerOptions.ON_2)
-  return config
-
-
-def set_config_v2(enable_xla=False):
-  """Config eager context according to flag values using TF 2.0 API."""
-  if enable_xla:
-    tf.config.optimizer.set_jit(True)
-
-
-def is_v2_0():
-  """Returns true if using tf 2.0."""
-  return tf2.enabled()
-
-
 def set_gpu_thread_mode_and_count(gpu_thread_mode,
                                   datasets_num_private_threads,
                                   num_gpus, per_gpu_thread_count):

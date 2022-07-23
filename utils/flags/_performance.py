@@ -58,7 +58,7 @@ def get_loss_scale(flags_obj, default_for_fp16):
 def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
                        synthetic_data=False, max_train_steps=False, dtype=False,
                        all_reduce_alg=False, num_packs=False,
-                       tf_gpu_thread_mode=False,
+                       gpu_thread_private=False,
                        datasets_num_private_threads=False,
                        datasets_num_parallel_batches=False,
                        dynamic_loss_scale=False, fp16_implementation=False,
@@ -78,7 +78,7 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
     all_reduce_alg: If set forces a specific algorithm for multi-gpu.
     num_packs: If set provides number of packs for MirroredStrategy's cross
       device ops.
-    tf_gpu_thread_mode: gpu_private triggers us of private thread pool.
+    gpu_thread_private: gpu_private triggers us of private thread pool.
     datasets_num_private_threads: Number of private threads for datasets.
     datasets_num_parallel_batches: Determines how many batches to process in
     parallel when using map and batch from tf.data.
@@ -231,9 +231,9 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
                        "MirroredStrategy.  For details, see "
                        "tf.distribute.NcclAllReduce."))
 
-  if tf_gpu_thread_mode:
-    flags.DEFINE_string(
-        name="tf_gpu_thread_mode", short_name="gt_mode", default=None,
+  if gpu_thread_private:
+    flags.DEFINE_boolean(
+        name="gpu_thread_private", short_name="gt_private", default=False,
         help=help_wrap(
             "Whether and how the GPU device uses its own threadpool.")
     )
@@ -242,7 +242,7 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
         name="per_gpu_thread_count", short_name="pgtc", default=0,
         help=help_wrap(
             "The number of threads to use for GPU. Only valid when "
-            "tf_gpu_thread_mode is not global.")
+            "gpu_thread_private is enabled.")
     )
 
   if datasets_num_private_threads:
@@ -283,7 +283,7 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
 
   if enable_xla:
     flags.DEFINE_boolean(
-        name="enable_xla", default=False,
+        name="enable_xla", short_name="xla", default=False,
         help="Whether to enable XLA auto jit compilation")
 
   return key_flags

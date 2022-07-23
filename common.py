@@ -198,7 +198,7 @@ def define_keras_flags(
                                 dtype=True,
                                 all_reduce_alg=True,
                                 num_packs=True,
-                                tf_gpu_thread_mode=True,
+                                gpu_thread_private=True,
                                 datasets_num_private_threads=True,
                                 dynamic_loss_scale=dynamic_loss_scale,
                                 loss_scale=True,
@@ -213,11 +213,6 @@ def define_keras_flags(
 
   flags.DEFINE_boolean(name='enable_eager', default=False, help='Enable eager?')
   flags.DEFINE_boolean(name='skip_eval', default=False, help='Skip evaluation?')
-  # TODO(b/135607288): Remove this flag once we understand the root cause of
-  # slowdown when setting the learning phase in Keras backend.
-  flags.DEFINE_boolean(
-      name='set_learning_phase_to_train', default=True,
-      help='If skip eval, also set Keras learning phase to 1 (training).')
   flags.DEFINE_boolean(
       name='explicit_gpu_placement', default=False,
       help='If not using distribution strategy, explicitly set device scope '
@@ -255,7 +250,7 @@ def define_keras_flags(
       name='tpu', default='', help='TPU address to connect to.')
   flags.DEFINE_integer(
       name='steps_per_loop',
-      default=500,
+      default=100,
       help='Number of steps per training loop. Only training step happens '
       'inside the loop. Callbacks will not be called inside. Will be capped at '
       'steps per epoch.')
@@ -320,23 +315,6 @@ def get_synth_data(height, width, num_channels, num_classes, dtype):
   return inputs, labels
 
 
-def define_pruning_flags():
-  """Define flags for pruning methods."""
-  flags.DEFINE_string('pruning_method', None,
-                      'Pruning method.'
-                      'None (no pruning) or polynomial_decay.')
-  flags.DEFINE_float('pruning_initial_sparsity', 0.0,
-                     'Initial sparsity for pruning.')
-  flags.DEFINE_float('pruning_final_sparsity', 0.5,
-                     'Final sparsity for pruning.')
-  flags.DEFINE_integer('pruning_begin_step', 0,
-                       'Begin step for pruning.')
-  flags.DEFINE_integer('pruning_end_step', 100000,
-                       'End step for pruning.')
-  flags.DEFINE_integer('pruning_frequency', 100,
-                       'Frequency for pruning.')
-
-
 def get_synth_input_fn(height, width, num_channels, num_classes,
                        dtype=tf.float32, drop_remainder=True):
   """Returns an input function that returns a dataset with random data.
@@ -378,3 +356,20 @@ def get_synth_input_fn(height, width, num_channels, num_classes,
     return data
 
   return input_fn
+
+
+def define_pruning_flags():
+  """Define flags for pruning methods."""
+  flags.DEFINE_string('pruning_method', None,
+                      'Pruning method.'
+                      'None (no pruning) or polynomial_decay.')
+  flags.DEFINE_float('pruning_initial_sparsity', 0.0,
+                     'Initial sparsity for pruning.')
+  flags.DEFINE_float('pruning_final_sparsity', 0.5,
+                     'Final sparsity for pruning.')
+  flags.DEFINE_integer('pruning_begin_step', 0,
+                       'Begin step for pruning.')
+  flags.DEFINE_integer('pruning_end_step', 100000,
+                       'End step for pruning.')
+  flags.DEFINE_integer('pruning_frequency', 100,
+                       'Frequency for pruning.')

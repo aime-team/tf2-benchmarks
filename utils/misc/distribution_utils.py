@@ -197,6 +197,7 @@ class SyntheticDataset(object):
     # dataset.take(1) doesn't have GPU kernel.
     with tf.device('device:CPU:0'):
       tensor = tf.data.experimental.get_single_element(dataset.take(1))
+#      tensor = tf.data.Dataset.get_single_element(dataset.take(1))
     flat_tensor = tf.nest.flatten(tensor)
     variable_data = []
     initializers = []
