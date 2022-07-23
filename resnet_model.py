@@ -23,16 +23,12 @@ Related papers/blogs:
 - http://torch.ch/blog/2016/02/04/resnets.html
 
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import tensorflow as tf
 
 from tensorflow.keras import initializers
 from tensorflow.keras import backend
 from tensorflow.keras import models
-from tensorflow.keras import regularizers
 import imagenet_preprocessing
 
 
@@ -41,7 +37,6 @@ BATCH_NORM_DECAY = 0.9
 BATCH_NORM_EPSILON = 1e-5
 
 layers = tf.keras.layers
-
 
 def identity_block(input_tensor,
                    filters,
@@ -115,7 +110,6 @@ def identity_block(input_tensor,
   x = layers.add([x, input_tensor])
   x = layers.Activation('relu')(x)
   return x
-
 
 def conv_block(input_tensor,
                filters,
