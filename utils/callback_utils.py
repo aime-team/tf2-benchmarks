@@ -12,19 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Helper functions for the Keras implementations of models."""
+"""Callback util functions"""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import multiprocessing
-import os
 import time
 
 from absl import logging
 import tensorflow.compat.v2 as tf
-from tensorflow.python import tf2
 from tensorflow.python.profiler import profiler_v2 as profiler
 
 
@@ -116,16 +113,15 @@ class TimeHistory(tf.keras.callbacks.Callback):
       examples_per_second = steps_per_second * self.batch_size
 
       self.timestamp_log.append(BatchTimestamp(self.global_steps, now))
-      logging.info(
-          'TimeHistory: %.2f seconds, %.2f examples/second between steps %d '
-          'and %d', elapsed_time, examples_per_second, self.last_log_step,
-          self.global_steps)
+      print(
+          'Step %d, Images per second: %.1f ' % (self.global_steps, examples_per_second,
+          ))
 
       if self.summary_writer:
         with self.summary_writer.as_default():
           tf.summary.scalar('global_step/sec', steps_per_second,
                             self.global_steps)
-          tf.summary.scalar('examples/sec', examples_per_second,
+          tf.summary.scalar('images/sec', examples_per_second,
                             self.global_steps)
 
       self.last_log_step = self.global_steps
@@ -197,31 +193,3 @@ class ProfilerCallback(tf.keras.callbacks.Callback):
       profiler.stop()
       logging.info('Profiler saved profiles for steps between %s and %s to %s',
                    self.start_step, self.stop_step, self.log_dir)
-
-
-def set_gpu_thread_mode_and_count(gpu_thread_mode,
-                                  datasets_num_private_threads,
-                                  num_gpus, per_gpu_thread_count):
-  """Set GPU thread mode and count, and adjust dataset threads count."""
-  cpu_count = multiprocessing.cpu_count()
-  logging.info('Logical CPU cores: %s', cpu_count)
-
-  # Allocate private thread pool for each GPU to schedule and launch kernels
-  per_gpu_thread_count = per_gpu_thread_count or 2
-  os.environ['TF_GPU_THREAD_MODE'] = gpu_thread_mode
-  os.environ['TF_GPU_THREAD_COUNT'] = str(per_gpu_thread_count)
-  logging.info('TF_GPU_THREAD_COUNT: %s',
-               os.environ['TF_GPU_THREAD_COUNT'])
-  logging.info('TF_GPU_THREAD_MODE: %s',
-               os.environ['TF_GPU_THREAD_MODE'])
-
-  # Limit data preprocessing threadpool to CPU cores minus number of total GPU
-  # private threads and memory copy threads.
-  total_gpu_thread_count = per_gpu_thread_count * num_gpus
-  num_runtime_threads = num_gpus
-  if not datasets_num_private_threads:
-    datasets_num_private_threads = min(
-        cpu_count - total_gpu_thread_count - num_runtime_threads,
-        num_gpus * 8)
-    logging.info('Set datasets_num_private_threads to %s',
-                 datasets_num_private_threads)

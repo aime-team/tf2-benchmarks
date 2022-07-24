@@ -29,8 +29,7 @@ import tensorflow as tf
 from utils import performance
 from utils.flags import core as flags_core
 from utils.logs import logger
-from utils.misc import distribution_utils
-from utils.misc import keras_utils
+from utils import distribution_utils
 import common
 import imagenet_preprocessing
 import resnet_model
@@ -56,7 +55,7 @@ def run(flags_obj):
   # Execute flag override logic for better model performance
   if flags_obj.gpu_thread_private:
     print("--- Enable GPU Private Thread Mode")   
-    keras_utils.set_gpu_thread_mode_and_count(
+    performance.set_gpu_thread_mode_and_count(
         per_gpu_thread_count=flags_obj.per_gpu_thread_count,
         gpu_thread_mode="gpu_private",
         num_gpus=flags_obj.num_gpus,

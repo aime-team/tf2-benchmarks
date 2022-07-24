@@ -23,7 +23,7 @@ from absl import flags
 import tensorflow as tf
 
 from utils.flags import core as flags_core
-from utils.misc import keras_utils
+from utils import callback_utils
 
 FLAGS = flags.FLAGS
 BASE_LEARNING_RATE = 0.1  # This matches Jing's version.
@@ -111,7 +111,7 @@ def get_callbacks(
     enable_checkpoint_and_export=False,
     model_dir=None):
   """Returns common callbacks."""
-  time_callback = keras_utils.TimeHistory(
+  time_callback = callback_utils.TimeHistory(
       FLAGS.batch_size,
       FLAGS.log_steps,
       logdir=FLAGS.model_dir if FLAGS.enable_tensorboard else None)
@@ -123,7 +123,7 @@ def get_callbacks(
     callbacks.append(tensorboard_callback)
 
   if FLAGS.profile_steps:
-    profiler_callback = keras_utils.get_profiler_callback(
+    profiler_callback = callback_utils.get_profiler_callback(
         FLAGS.model_dir,
         FLAGS.profile_steps,
         FLAGS.enable_tensorboard,
@@ -174,7 +174,7 @@ def build_stats(history, eval_output, callbacks):
 
   # Look for the time history callback which was used during keras.fit
   for callback in callbacks:
-    if isinstance(callback, keras_utils.TimeHistory):
+    if isinstance(callback, callback_utils.TimeHistory):
       timestamp_log = callback.timestamp_log
       stats['step_timestamp_log'] = timestamp_log
       stats['train_finish_time'] = callback.train_finish_time
