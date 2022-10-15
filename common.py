@@ -194,7 +194,7 @@ def define_keras_flags(
   """Define flags for Keras models."""
   flags_core.define_base(clean=True, num_gpu=True, run_eagerly=True,
                          train_epochs=True, epochs_between_evals=True,
-                         distribution_strategy=True) #***, csv_output_log_file=True)
+                         distribution_strategy=True)
   flags_core.define_performance(num_parallel_calls=False,
                                 synthetic_data=True,
                                 dtype=True,
@@ -264,8 +264,8 @@ def define_keras_flags(
       'TPU.')
 
   if model:
-    flags.DEFINE_string('model', 'resnet50_v1.5',
-                        'Name of model preset. (mobilenet, resnet50_v1.5)')
+    flags.DEFINE_string('model', 'resnet50',
+                        'Name of model preset. (resnet50, resnet50_v1.0, resnet152, vgg19)')
   if optimizer:
     flags.DEFINE_string('optimizer', 'resnet50_default',
                         'Name of optimizer preset. '
@@ -358,20 +358,3 @@ def get_synth_input_fn(height, width, num_channels, num_classes,
     return data
 
   return input_fn
-
-
-""" def define_pruning_flags():
-  Define flags for pruning methods. #***
-  flags.DEFINE_string('pruning_method', None,
-                      'Pruning method.'
-                      'None (no pruning) or polynomial_decay.')
-  flags.DEFINE_float('pruning_initial_sparsity', 0.0,
-                     'Initial sparsity for pruning.')
-  flags.DEFINE_float('pruning_final_sparsity', 0.5,
-                     'Final sparsity for pruning.')
-  flags.DEFINE_integer('pruning_begin_step', 0,
-                       'Begin step for pruning.')
-  flags.DEFINE_integer('pruning_end_step', 100000,
-                       'End step for pruning.')
-  flags.DEFINE_integer('pruning_frequency', 100,
-                       'Frequency for pruning.') """

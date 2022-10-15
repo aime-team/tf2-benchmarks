@@ -46,7 +46,6 @@ def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
     distribution_strategy: Create a flag to specify which Distribution Strategy
       to use.
     run_eagerly: Create a flag to specify to run eagerly op by op.
-    ***csv_output_log_file: Create a flag to generate a CSV file as output of the epochs
   Returns:
     A list of flags for core.py to marks as key flags.
   """

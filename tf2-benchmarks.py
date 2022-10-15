@@ -29,11 +29,9 @@ import os
 import logging
 
 logging.getLogger('tensorflow').disabled = True
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(2)  # ***Selection of the verbosity level
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(2)  # Selection of the verbosity level
 
 import tensorflow as tf
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(flags.FLAGS.output_verbosity)  # ***Selection of the verbosity level
-
 
 from utils import performance
 from utils.flags import core as flags_core
@@ -203,11 +201,11 @@ def run(flags_obj):
     img_input = tf.keras.layers.Input(shape=input_shape, batch_size=flags_obj.batch_size)
 
     if flags_obj.model == 'resnet50':
-      print("--- ResNet50 ---")
-      model = tf.keras.applications.ResNet50(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
-    elif flags_obj.model == 'resnet50_v1.5':
-      print("--- ResNet50 V1.5 ---")
+      print("--- ResNet50 (v1.5)---")
       model = resnet_model.resnet50v1_5(input_shape=input_shape, num_classes=imagenet_preprocessing.NUM_CLASSES)
+    elif flags_obj.model == 'resnet50_v1.0':
+      print("--- ResNet50 (v1.0) ---")
+      model = tf.keras.applications.ResNet50(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'resnet152':
       print("--- Resnet152 ---")
       model = tf.keras.applications.ResNet152(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
@@ -234,7 +232,6 @@ def run(flags_obj):
 
   callbacks = common.get_callbacks(
       steps_per_epoch=steps_per_epoch,
-      #pruning_method=flags_obj.pruning_method, ***
       enable_checkpoint_and_export=flags_obj.enable_checkpoint_and_export,
       model_dir=flags_obj.model_dir)
 
@@ -259,17 +256,12 @@ def run(flags_obj):
     # when not using distribution strategy.
     no_dist_strat_device = tf.device('/device:GPU:0')
     no_dist_strat_device.__enter__()
-  #####################################################################################
-  """*** if flags_obj.csv_output_log_file:
-    print("--- Output of the epochs saved on: " + flags_obj.csv_output_log_file)
-    #tf.keras.callbacks.CSVLogger(filename, separator=",", append=False)
-    csv_logger = tf.keras.callbacks.CSVLogger(flags_obj.csv_output_log_file) """
-  #####################################################################################
+ 
   history = model.fit(train_input_dataset,
                       epochs=train_epochs,
                       batch_size=flags_obj.batch_size,
                       steps_per_epoch=steps_per_epoch,
-                      callbacks=callbacks, #*** [callbacks, csv_logger]
+                      callbacks=callbacks,
                       validation_steps=num_eval_steps,
                       validation_data=validation_data,
                       validation_freq=flags_obj.epochs_between_evals,
@@ -301,21 +293,15 @@ def define_imagenet_keras_flags():
       model=True,
       optimizer=True,
       pretrained_filepath=True)
-  #common.define_pruning_flags() #***
   flags_core.set_defaults()
   flags.adopt_module_key_flags(common)
 
 
 def main(_):
-  #os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(flags.FLAGS.output_verbosity)  # ***Selection of the verbosity level
-  # import tensorflow as tf
-  
   with logger.benchmark_context(flags.FLAGS):
     stats = run(flags.FLAGS)
   logging.info('Run stats:\n%s', stats)
-  print('-----SE ACABÓ-----CEN EST FAI-----FINISHED-----')
 
 if __name__ == '__main__':
-  #***logging.set_verbosity(logging.INFO)
   define_imagenet_keras_flags()  
   app.run(main)
