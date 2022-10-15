@@ -193,14 +193,13 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
 
     if fp16_implementation:
       flags.DEFINE_enum(
-          name="fp16_implementation", default="keras",
+          name="fp16_implementation", default="graph_rewrite",
           enum_values=("keras', 'graph_rewrite"),
           help=help_wrap(
               "When --dtype=fp16, how fp16 should be implemented. This has no "
               "impact on correctness. 'keras' uses the "
               "tf.keras.mixed_precision API. 'graph_rewrite' uses the "
-              "tf.train.experimental.enable_mixed_precision_graph_rewrite "
-              "API."))
+              "mixed_precision.enable_mixed_precision_graph_rewrite API."))
 
       @flags.multi_flags_validator(["fp16_implementation", "dtype",
                                     "loss_scale"])

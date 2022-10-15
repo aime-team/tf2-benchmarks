@@ -46,11 +46,11 @@ def configure_optimizer(optimizer,
   return optimizer
 
 
-def set_mixed_precision_policy(dtype, loss_scale=None):
+def set_mixed_precision_policy(dtype):
   """Sets mix precision policy."""
   if dtype == tf.float16:
     policy = tf.keras.mixed_precision.set_global_policy(
-        'mixed_float16', loss_scale=loss_scale)
+        'mixed_float16')
     tf.keras.mixed_precision.set_global_policy(policy)
   elif dtype == tf.bfloat16:
     policy = tf.keras.mixed_precision.set_global_policy(

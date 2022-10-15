@@ -73,9 +73,8 @@ def run(flags_obj):
   performance.set_cudnn_batchnorm_mode()
 
   dtype = flags_core.get_tf_dtype(flags_obj)
-  performance.set_mixed_precision_policy(
-      flags_core.get_tf_dtype(flags_obj),
-      flags_core.get_loss_scale(flags_obj, default_for_fp16=128))
+  print("--- Model dtype: %s" % (dtype.name))   
+  performance.set_mixed_precision_policy(flags_core.get_tf_dtype(flags_obj))
 
   data_format = flags_obj.data_format
   if data_format is None:
@@ -178,14 +177,15 @@ def run(flags_obj):
               decay_rate=flags_obj.lr_decay_factor,
               staircase=True),
           momentum=0.9)
+
     if flags_obj.fp16_implementation == 'graph_rewrite':
       # Note: when flags_obj.fp16_implementation == "graph_rewrite", dtype as
       # determined by flags_core.get_tf_dtype(flags_obj) would be 'float32'
       # which will ensure tf.compat.v2.keras.mixed_precision and
       # tf.train.experimental.enable_mixed_precision_graph_rewrite do not double
       # up.
-      optimizer = tf.train.experimental.enable_mixed_precision_graph_rewrite(
-          optimizer)
+      print("--- Using Mixed Precission: Graph Rewrite float16")   
+      tf.compat.v1.mixed_precision.enable_mixed_precision_graph_rewrite(optimizer, loss_scale='dynamic')
 
     print("--- Image Data Format: " + tf.keras.backend.image_data_format())
     if tf.keras.backend.image_data_format() == 'channels_first':
