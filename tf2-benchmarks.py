@@ -184,7 +184,7 @@ def run(flags_obj):
       # which will ensure tf.compat.v2.keras.mixed_precision and
       # tf.train.experimental.enable_mixed_precision_graph_rewrite do not double
       # up.
-      print("--- Using Mixed Precission: Graph Rewrite float16")   
+      print("--- Using Mixed Precision: Graph Rewrite float16")   
       tf.compat.v1.mixed_precision.enable_mixed_precision_graph_rewrite(optimizer, loss_scale='dynamic')
 
     print("--- Image Data Format: " + tf.keras.backend.image_data_format())
