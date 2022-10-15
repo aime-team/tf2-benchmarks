@@ -201,16 +201,6 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
               "tf.keras.mixed_precision API. 'graph_rewrite' uses the "
               "mixed_precision.enable_mixed_precision_graph_rewrite API."))
 
-      @flags.multi_flags_validator(["fp16_implementation", "dtype",
-                                    "loss_scale"])
-      def _check_fp16_implementation(flags_dict):
-        """Validator to check fp16_implementation flag is valid."""
-        if (flags_dict["fp16_implementation"] == "graph_rewrite" and
-            flags_dict["dtype"] != "fp16"):
-          raise flags.ValidationError("--fp16_implementation should not be "
-                                      "specified unless --dtype=fp16")
-        return True
-
   if all_reduce_alg:
     flags.DEFINE_string(
         name="all_reduce_alg", short_name="ara", default=None,

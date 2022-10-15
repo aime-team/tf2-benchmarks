@@ -178,12 +178,11 @@ def run(flags_obj):
               staircase=True),
           momentum=0.9)
 
-    if flags_obj.fp16_implementation == 'graph_rewrite':
+    if (flags_obj.dtype == "fp16") & (flags_obj.fp16_implementation == 'graph_rewrite'):
       # Note: when flags_obj.fp16_implementation == "graph_rewrite", dtype as
       # determined by flags_core.get_tf_dtype(flags_obj) would be 'float32'
       # which will ensure tf.compat.v2.keras.mixed_precision and
-      # tf.train.experimental.enable_mixed_precision_graph_rewrite do not double
-      # up.
+      # graph_rewrite do not double up.
       print("--- Using Mixed Precision: Graph Rewrite float16")   
       tf.compat.v1.mixed_precision.enable_mixed_precision_graph_rewrite(optimizer, loss_scale='dynamic')
 
