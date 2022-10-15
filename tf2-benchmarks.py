@@ -18,13 +18,22 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
+ 
 import sys
 
 from absl import app
 from absl import flags
-from absl import logging
+from absl import logging 
+import os
+  
+import logging
+
+logging.getLogger('tensorflow').disabled = True
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(2)  # ***Selection of the verbosity level
+
 import tensorflow as tf
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(flags.FLAGS.output_verbosity)  # ***Selection of the verbosity level
+
 
 from utils import performance
 from utils.flags import core as flags_core
@@ -32,10 +41,11 @@ from utils.logs import logger
 from utils import distribution_utils
 import common
 import imagenet_preprocessing
-import resnet_model
+import resnet_model  
 
 
 def run(flags_obj):
+  
   """Run ResNet ImageNet training and eval loop using native Keras APIs.
 
   Args:
@@ -48,6 +58,10 @@ def run(flags_obj):
   Returns:
     Dictionary of training and eval stats.
   """
+  
+  #*** if flags_obj.output_verbosity:
+  #  print("---Verbosity level: " + str(flags_obj.output_verbosity))
+  
   if flags_obj.enable_xla:
     print("--- Enable XLA")   
     tf.config.optimizer.set_jit(True)
@@ -82,8 +96,8 @@ def run(flags_obj):
       distribution_strategy=flags_obj.distribution_strategy,
       num_gpus=flags_obj.num_gpus,
       all_reduce_alg=flags_obj.all_reduce_alg,
-      num_packs=flags_obj.num_packs,
-      tpu_address=flags_obj.tpu)
+      num_packs=flags_obj.num_packs)#,
+      #tpu_address=flags_obj.tpu)
 
   if strategy:
     # flags_obj.enable_get_next_as_optional controls whether enabling
@@ -220,11 +234,11 @@ def run(flags_obj):
 
   callbacks = common.get_callbacks(
       steps_per_epoch=steps_per_epoch,
-      pruning_method=flags_obj.pruning_method,
+      #pruning_method=flags_obj.pruning_method, ***
       enable_checkpoint_and_export=flags_obj.enable_checkpoint_and_export,
       model_dir=flags_obj.model_dir)
 
-  # if mutliple epochs, ignore the train_steps flag.
+  # if multiple epochs, ignore the train_steps flag.
   if train_epochs <= 1 and flags_obj.train_steps:
     steps_per_epoch = min(flags_obj.train_steps, steps_per_epoch)
     train_epochs = 1
@@ -242,15 +256,20 @@ def run(flags_obj):
 
   if not strategy and flags_obj.explicit_gpu_placement:
     # TODO(b/135607227): Add device scope automatically in Keras training loop
-    # when not using distribition strategy.
+    # when not using distribution strategy.
     no_dist_strat_device = tf.device('/device:GPU:0')
     no_dist_strat_device.__enter__()
-
+  #####################################################################################
+  """*** if flags_obj.csv_output_log_file:
+    print("--- Output of the epochs saved on: " + flags_obj.csv_output_log_file)
+    #tf.keras.callbacks.CSVLogger(filename, separator=",", append=False)
+    csv_logger = tf.keras.callbacks.CSVLogger(flags_obj.csv_output_log_file) """
+  #####################################################################################
   history = model.fit(train_input_dataset,
                       epochs=train_epochs,
                       batch_size=flags_obj.batch_size,
                       steps_per_epoch=steps_per_epoch,
-                      callbacks=callbacks,
+                      callbacks=callbacks, #*** [callbacks, csv_logger]
                       validation_steps=num_eval_steps,
                       validation_data=validation_data,
                       validation_freq=flags_obj.epochs_between_evals,
@@ -272,7 +291,7 @@ def run(flags_obj):
 
   if not strategy and flags_obj.explicit_gpu_placement:
     no_dist_strat_device.__exit__()
-
+    
   stats = common.build_stats(history, eval_output, callbacks)
   return stats
 
@@ -282,18 +301,21 @@ def define_imagenet_keras_flags():
       model=True,
       optimizer=True,
       pretrained_filepath=True)
-  common.define_pruning_flags()
+  #common.define_pruning_flags() #***
   flags_core.set_defaults()
   flags.adopt_module_key_flags(common)
 
 
 def main(_):
+  #os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(flags.FLAGS.output_verbosity)  # ***Selection of the verbosity level
+  # import tensorflow as tf
+  
   with logger.benchmark_context(flags.FLAGS):
     stats = run(flags.FLAGS)
   logging.info('Run stats:\n%s', stats)
-
+  print('-----SE ACABÓ-----CEN EST FAI-----FINISHED-----')
 
 if __name__ == '__main__':
-  logging.set_verbosity(logging.INFO)
-  define_imagenet_keras_flags()
+  #***logging.set_verbosity(logging.INFO)
+  define_imagenet_keras_flags()  
   app.run(main)

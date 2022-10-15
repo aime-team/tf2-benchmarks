@@ -37,7 +37,7 @@ class BatchTimestamp(object):
         self.batch_index, self.timestamp)
 
 
-class TimeHistory(tf.keras.callbacks.Callback):
+class BenchmarkCallbacks(tf.keras.callbacks.Callback):
   """Callback for Keras models."""
 
   def __init__(self, batch_size, log_steps, logdir=None):
@@ -51,7 +51,7 @@ class TimeHistory(tf.keras.callbacks.Callback):
     # TODO(wcromar): remove this parameter and rely on `logs` parameter of
     # on_train_batch_end()
     self.batch_size = batch_size
-    super(TimeHistory, self).__init__()
+    super(BenchmarkCallbacks, self).__init__()
     self.log_steps = log_steps
     self.last_log_step = 0
     self.steps_before_epoch = 0
@@ -113,10 +113,14 @@ class TimeHistory(tf.keras.callbacks.Callback):
       examples_per_second = steps_per_second * self.batch_size
 
       self.timestamp_log.append(BatchTimestamp(self.global_steps, now))
+      #***
+      #print(
+      #    'Step %d, Images per second: %.1f, Loss: %.1f' % (self.global_steps, examples_per_second,
+      #    logs['loss']))
       print(
-          'Step %d, Images per second: %.1f ' % (self.global_steps, examples_per_second,
+          'Step %d, Images per second: %.1f' % (self.global_steps, examples_per_second,
           ))
-
+      print(str(logs))
       if self.summary_writer:
         with self.summary_writer.as_default():
           tf.summary.scalar('global_step/sec', steps_per_second,
@@ -135,9 +139,9 @@ class TimeHistory(tf.keras.callbacks.Callback):
     self.steps_in_epoch = 0
 
 
-def get_profiler_callback(model_dir, profile_steps, enable_tensorboard,
+""" def get_profiler_callback(model_dir, profile_steps, enable_tensorboard,
                           steps_per_epoch):
-  """Validate profile_steps flag value and return profiler callback."""
+  Validate profile_steps flag value and return profiler callback.
   profile_steps_error_message = (
       'profile_steps must be a comma separated pair of positive integers, '
       'specifying the first and last steps to be profiled.'
@@ -157,11 +161,11 @@ def get_profiler_callback(model_dir, profile_steps, enable_tensorboard,
         'TensorBoard callback profiles the 2nd step (unless otherwise '
         'specified). Please make sure the steps profiled by the two callbacks '
         'do not overlap.')
-  return ProfilerCallback(model_dir, start_step, stop_step, steps_per_epoch)
+  return ProfilerCallback(model_dir, start_step, stop_step, steps_per_epoch) """
 
 
-class ProfilerCallback(tf.keras.callbacks.Callback):
-  """Save profiles in specified step range to log directory."""
+""" class ProfilerCallback(tf.keras.callbacks.Callback):
+  TBD Save profiles in specified step range to log directory.
 
   def __init__(self, log_dir, start_step, stop_step, steps_per_epoch):
     super(ProfilerCallback, self).__init__()
@@ -192,4 +196,4 @@ class ProfilerCallback(tf.keras.callbacks.Callback):
       self.should_stop = False
       profiler.stop()
       logging.info('Profiler saved profiles for steps between %s and %s to %s',
-                   self.start_step, self.stop_step, self.log_dir)
+                   self.start_step, self.stop_step, self.log_dir) """

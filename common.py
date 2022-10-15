@@ -111,7 +111,7 @@ def get_callbacks(
     enable_checkpoint_and_export=False,
     model_dir=None):
   """Returns common callbacks."""
-  time_callback = callback_utils.TimeHistory(
+  time_callback = callback_utils.BenchmarkCallbacks(
       FLAGS.batch_size,
       FLAGS.log_steps,
       logdir=FLAGS.model_dir if FLAGS.enable_tensorboard else None)
@@ -135,7 +135,9 @@ def get_callbacks(
       ckpt_full_path = os.path.join(model_dir, 'model.ckpt-{epoch:04d}')
       callbacks.append(
           tf.keras.callbacks.ModelCheckpoint(ckpt_full_path,
-                                             save_weights_only=True))
+                                             save_weights_only=False,
+                                             save_freq= "epoch",
+                                             verbose= 1))
   return callbacks
 
 
@@ -174,7 +176,7 @@ def build_stats(history, eval_output, callbacks):
 
   # Look for the time history callback which was used during keras.fit
   for callback in callbacks:
-    if isinstance(callback, callback_utils.TimeHistory):
+    if isinstance(callback, callback_utils.BenchmarkCallbacks):
       timestamp_log = callback.timestamp_log
       stats['step_timestamp_log'] = timestamp_log
       stats['train_finish_time'] = callback.train_finish_time
@@ -192,7 +194,7 @@ def define_keras_flags(
   """Define flags for Keras models."""
   flags_core.define_base(clean=True, num_gpu=True, run_eagerly=True,
                          train_epochs=True, epochs_between_evals=True,
-                         distribution_strategy=True)
+                         distribution_strategy=True) #***, csv_output_log_file=True)
   flags_core.define_performance(num_parallel_calls=False,
                                 synthetic_data=True,
                                 dtype=True,
@@ -246,8 +248,8 @@ def define_keras_flags(
   flags.DEFINE_boolean(
       name='enable_checkpoint_and_export', default=False,
       help='Whether to enable a checkpoint callback and export the savedmodel.')
-  flags.DEFINE_string(
-      name='tpu', default='', help='TPU address to connect to.')
+  #flags.DEFINE_string(
+  #    name='tpu', default='', help='TPU address to connect to.') # ***
   flags.DEFINE_integer(
       name='steps_per_loop',
       default=100,
@@ -358,8 +360,8 @@ def get_synth_input_fn(height, width, num_channels, num_classes,
   return input_fn
 
 
-def define_pruning_flags():
-  """Define flags for pruning methods."""
+""" def define_pruning_flags():
+  Define flags for pruning methods. #***
   flags.DEFINE_string('pruning_method', None,
                       'Pruning method.'
                       'None (no pruning) or polynomial_decay.')
@@ -372,4 +374,4 @@ def define_pruning_flags():
   flags.DEFINE_integer('pruning_end_step', 100000,
                        'End step for pruning.')
   flags.DEFINE_integer('pruning_frequency', 100,
-                       'Frequency for pruning.')
+                       'Frequency for pruning.') """

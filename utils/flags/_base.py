@@ -28,7 +28,7 @@ from utils.logs import hooks_helper
 def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
                 epochs_between_evals=False, stop_threshold=False,
                 batch_size=True, num_gpu=False, hooks=False, export_dir=False,
-                distribution_strategy=False, run_eagerly=False):
+                distribution_strategy=False, run_eagerly=False, output_verbosity = True): #***, csv_output_log_file=True):
   """Register base flags.
 
   Args:
@@ -46,6 +46,7 @@ def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
     distribution_strategy: Create a flag to specify which Distribution Strategy
       to use.
     run_eagerly: Create a flag to specify to run eagerly op by op.
+    ***csv_output_log_file: Create a flag to generate a CSV file as output of the epochs
   Returns:
     A list of flags for core.py to marks as key flags.
   """
@@ -148,7 +149,24 @@ def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
                        "from `MirroredStrategy` or `OneDeviceStrategy` "
                        "according to the number of GPUs.")
     )
-
+  #***
+  #if csv_output_log_file:
+  #  flags.DEFINE_string(
+  #    name= "csv_output_log_file", short_name="csvlogger", default='csv_logger.csv',
+  #    help=help_wrap("Callback to streams epoch results to a CSV file.\n"
+  #                   "Reference https://keras.io/api/callbacks/csv_logger/ .")
+  #  )
+  if output_verbosity:
+    flags.DEFINE_integer(
+        name="output_verbosity", short_name="ov", default=2,
+        help=help_wrap("Level of verbosity defined by the user:\n "
+                       "Level 0: all messages are logged (default behavior)\n"
+                       "Level 1: INFO messages are NOT printed\n"
+                       "Level 2: INFO and WARNING messages are NOT printed\n"
+                       "Level 3: INFO, WARNING, and ERROR messages are not printed\n"
+                       )
+    )
+    key_flags.append("output_verbosity")
 
   return key_flags
 

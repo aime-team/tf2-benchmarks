@@ -206,7 +206,7 @@ def conv_block(input_tensor,
 
 
 def resnet50v1_5(num_classes,
-             input_shape=(224,244,3),
+             input_shape=(224,224,3),
              rescale_inputs=False):
   """Instantiates the ResNet50 architecture.
 
