@@ -107,28 +107,13 @@ def get_optimizer(learning_rate=0.1):
 
 def get_callbacks(
     steps_per_epoch,
-    pruning_method=None,
     enable_checkpoint_and_export=False,
     model_dir=None):
   """Returns common callbacks."""
   time_callback = callback_utils.BenchmarkCallbacks(
       FLAGS.batch_size,
-      FLAGS.log_steps,
-      logdir=FLAGS.model_dir if FLAGS.enable_tensorboard else None)
+      FLAGS.log_steps)
   callbacks = [time_callback]
-
-  if FLAGS.enable_tensorboard:
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=FLAGS.model_dir)
-    callbacks.append(tensorboard_callback)
-
-  if FLAGS.profile_steps:
-    profiler_callback = callback_utils.get_profiler_callback(
-        FLAGS.model_dir,
-        FLAGS.profile_steps,
-        FLAGS.enable_tensorboard,
-        steps_per_epoch)
-    callbacks.append(profiler_callback)
 
   if enable_checkpoint_and_export:
     if model_dir is not None:
@@ -141,7 +126,7 @@ def get_callbacks(
   return callbacks
 
 
-def build_stats(history, eval_output, callbacks):
+def build_stats(history, eval_output):
   """Normalizes and returns dictionary of stats.
 
   Args:
@@ -149,8 +134,6 @@ def build_stats(history, eval_output, callbacks):
       and sparse_categorical_accuracy.
     eval_output: Output of the eval step. Assumes first value is eval_loss and
       second value is accuracy_top_1.
-    callbacks: a list of callbacks which might include a time history callback
-      used during keras.fit.
 
   Returns:
     Dictionary of normalized results.
@@ -170,18 +153,6 @@ def build_stats(history, eval_output, callbacks):
       stats[TRAIN_TOP_1] = float(train_hist['sparse_categorical_accuracy'][-1])
     elif 'accuracy' in train_hist:
       stats[TRAIN_TOP_1] = float(train_hist['accuracy'][-1])
-
-  if not callbacks:
-    return stats
-
-  # Look for the time history callback which was used during keras.fit
-  for callback in callbacks:
-    if isinstance(callback, callback_utils.BenchmarkCallbacks):
-      timestamp_log = callback.timestamp_log
-      stats['step_timestamp_log'] = timestamp_log
-      stats['train_finish_time'] = callback.train_finish_time
-      if callback.epoch_runtime_log:
-        stats['avg_exp_per_second'] = callback.average_examples_per_second
 
   return stats
 
@@ -223,9 +194,6 @@ def define_keras_flags(
                        help='Report metrics during training and evaluation.')
   flags.DEFINE_boolean(name='use_tensor_lr', default=True,
                        help='Use learning rate tensor instead of a callback.')
-  flags.DEFINE_boolean(
-      name='enable_tensorboard', default=False,
-      help='Whether to enable Tensorboard callback.')
   flags.DEFINE_integer(
       name='train_steps', default=None,
       help='The number of steps to run for training. If it is larger than '

@@ -197,23 +197,26 @@ def run(flags_obj):
 
     img_input = tf.keras.layers.Input(shape=input_shape, batch_size=flags_obj.batch_size)
 
+    model_name = "unknown" 
     if flags_obj.model == 'resnet50':
-      print("--- ResNet50 (v1.5) ---")
+      model_name = "ResNet50 (v1.5)"
       model = resnet_model.resnet50v1_5(input_shape=input_shape, num_classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'resnet50_v1.0':
-      print("--- ResNet50 (v1.0) ---")
+      model_name = "ResNet50 (v1.0)"
       model = tf.keras.applications.ResNet50(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'resnet152':
-      print("--- Resnet152 ---")
+      model_name = "ResNet152"
       model = tf.keras.applications.ResNet152(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'vgg19':
-      print("--- VGG19 ---")
+      model_name = "VGG19"
       model = tf.keras.applications.VGG19(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'mobilenet':
-      print("--- MobileNet ---")
+      model_name = "MobileNet"
       model = tf.keras.applications.MobileNetV2(input_shape=input_shape, weights=None, classes=imagenet_preprocessing.NUM_CLASSES)
     else:
-      sys.exit("unknown model: " + flags_obj.model)
+      sys.exit("! unknown model: " + flags_obj.model)
+
+    print("--- Model: %s" % (model_name))
 
     if flags_obj.pretrained_filepath:
       model.load_weights(flags_obj.pretrained_filepath)
@@ -281,7 +284,7 @@ def run(flags_obj):
   if not strategy and flags_obj.explicit_gpu_placement:
     no_dist_strat_device.__exit__()
     
-  stats = common.build_stats(history, eval_output, callbacks)
+  stats = common.build_stats(history, eval_output)
   return stats
 
 
@@ -297,7 +300,7 @@ def define_imagenet_keras_flags():
 def main(_):
   with logger.benchmark_context(flags.FLAGS):
     stats = run(flags.FLAGS)
-  logging.info('Run stats:\n%s', stats)
+  logging.info('\n--- Run stats:\n%s', stats)
 
 if __name__ == '__main__':
   define_imagenet_keras_flags()  
