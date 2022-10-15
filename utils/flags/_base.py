@@ -148,16 +148,10 @@ def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
                        "from `MirroredStrategy` or `OneDeviceStrategy` "
                        "according to the number of GPUs.")
     )
-  #***
-  #if csv_output_log_file:
-  #  flags.DEFINE_string(
-  #    name= "csv_output_log_file", short_name="csvlogger", default='csv_logger.csv',
-  #    help=help_wrap("Callback to streams epoch results to a CSV file.\n"
-  #                   "Reference https://keras.io/api/callbacks/csv_logger/ .")
-  #  )
+
   if output_verbosity:
     flags.DEFINE_integer(
-        name="output_verbosity", short_name="ov", default=2,
+        name="output_verbosity", short_name="ov", default=1,
         help=help_wrap("Level of verbosity defined by the user:\n "
                        "Level 0: all messages are logged (default behavior)\n"
                        "Level 1: INFO messages are NOT printed\n"

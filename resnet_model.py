@@ -232,7 +232,6 @@ def resnet50v1_5(num_classes,
     x = img_input
 
   if backend.image_data_format() == 'channels_first':
-#    x = layers.Permute((3, 1, 2))(x)
     bn_axis = 1
   else:  # channels_last
     bn_axis = 3

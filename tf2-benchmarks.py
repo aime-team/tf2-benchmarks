@@ -56,10 +56,7 @@ def run(flags_obj):
   Returns:
     Dictionary of training and eval stats.
   """
-  
-  #*** if flags_obj.output_verbosity:
-  #  print("---Verbosity level: " + str(flags_obj.output_verbosity))
-  
+
   if flags_obj.enable_xla:
     print("--- Enable XLA")   
     tf.config.optimizer.set_jit(True)
@@ -201,7 +198,7 @@ def run(flags_obj):
     img_input = tf.keras.layers.Input(shape=input_shape, batch_size=flags_obj.batch_size)
 
     if flags_obj.model == 'resnet50':
-      print("--- ResNet50 (v1.5)---")
+      print("--- ResNet50 (v1.5) ---")
       model = resnet_model.resnet50v1_5(input_shape=input_shape, num_classes=imagenet_preprocessing.NUM_CLASSES)
     elif flags_obj.model == 'resnet50_v1.0':
       print("--- ResNet50 (v1.0) ---")
