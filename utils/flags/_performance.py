@@ -211,7 +211,7 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
                        "specified with MultiWorkerMirroredStrategy, this "
                        "controls "
                        "tf.distribute.experimental.CollectiveCommunication; "
-                       "valid options are `ring` and `nccl`."))
+                       "valid options are `hierarchical_copy` and `nccl`."))
 
   if num_packs:
     flags.DEFINE_integer(

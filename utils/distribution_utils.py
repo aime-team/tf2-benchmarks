@@ -64,18 +64,19 @@ def _mirrored_cross_device_ops(all_reduce_alg, num_packs):
     tf.distribute.CrossDeviceOps object or None.
 
   Raises:
-    ValueError: if `all_reduce_alg` not in [None, 'nccl', 'hierarchical_copy'].
+    ValueError: if `all_reduce_alg` not in [None, 'nccl', 'to_one_device', 'hierarchical_copy'].
   """
   if all_reduce_alg is None:
     return None
   mirrored_all_reduce_options = {
       "nccl": tf.distribute.NcclAllReduce,
+      'to_one_device': tf.distribute.ReductionToOneDevice,
       "hierarchical_copy": tf.distribute.HierarchicalCopyAllReduce
   }
   if all_reduce_alg not in mirrored_all_reduce_options:
     raise ValueError(
         "When used with `mirrored`, valid values for all_reduce_alg are "
-        "['nccl', 'hierarchical_copy'].  Supplied value: {}".format(
+        "['nccl', 'to_one_device', 'hierarchical_copy'].  Supplied value: {}".format(
             all_reduce_alg))
   cross_device_ops_class = mirrored_all_reduce_options[all_reduce_alg]
   return cross_device_ops_class(num_packs=num_packs)
