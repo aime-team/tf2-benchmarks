@@ -70,11 +70,8 @@ class BenchmarkCallbacks(tf.keras.callbacks.Callback):
       examples_per_second = steps_per_second * self.batch_size
       self.examples_per_second_list.append(examples_per_second)
     
-#      print(
-#          'Step %d, Images per second: %.1f, Images_Average:  %.1f, Loss: %0.3f' % (self.global_steps, examples_per_second, self.average_example_per_second, logs['loss']
-#          ))
       print(
-          'Step, %d, Images per second, %.1f' % (self.global_steps, examples_per_second
+          'Step %d, Images per second: %.1f, Loss: %0.3f' % (self.global_steps, examples_per_second, self.average_example_per_second, logs['loss']
           ))
       
       self.last_log_step = self.global_steps
