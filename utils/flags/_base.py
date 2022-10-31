@@ -28,7 +28,7 @@ from utils.logs import hooks_helper
 def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
                 epochs_between_evals=False, stop_threshold=False,
                 batch_size=True, num_gpu=False, hooks=False, export_dir=False,
-                distribution_strategy=False, run_eagerly=False, output_verbosity = True): #***, csv_output_log_file=True):
+                distribution_strategy=False, run_eagerly=False, output_verbosity = True, mean_img_per_sec_file_dest = True): #***, csv_output_log_file=True):
   """Register base flags.
 
   Args:
@@ -160,6 +160,13 @@ def define_base(data_dir=True, model_dir=True, clean=False, train_epochs=False,
                        )
     )
     key_flags.append("output_verbosity")
+
+  if mean_img_per_sec_file_dest:
+    flags.DEFINE_string(
+        name="mean_img_per_sec_file_dest", short_name="mi", default=None,
+        help=help_wrap("Set the file, where to save the mean images per second")
+    )
+    key_flags.append("mean_img_per_sec_file_dest")
 
   return key_flags
 

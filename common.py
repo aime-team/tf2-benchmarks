@@ -108,11 +108,13 @@ def get_optimizer(learning_rate=0.1):
 def get_callbacks(
     steps_per_epoch,
     enable_checkpoint_and_export=False,
-    model_dir=None):
+    model_dir=None, 
+    mean_img_per_sec_file_dest=''):
   """Returns common callbacks."""
   time_callback = callback_utils.BenchmarkCallbacks(
       FLAGS.batch_size,
-      FLAGS.log_steps)
+      FLAGS.log_steps,
+      FLAGS.mean_img_per_sec_file_dest)
   callbacks = [time_callback]
 
   if enable_checkpoint_and_export:

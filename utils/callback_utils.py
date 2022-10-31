@@ -26,7 +26,7 @@ import tensorflow.compat.v2 as tf
 class BenchmarkCallbacks(tf.keras.callbacks.Callback):
   """Callback for Keras models."""
 
-  def __init__(self, batch_size, log_steps):
+  def __init__(self, batch_size, log_steps, mean_img_per_sec_file_dest):
     """Callback for logging performance.
 
     Args:
@@ -36,10 +36,12 @@ class BenchmarkCallbacks(tf.keras.callbacks.Callback):
     self.batch_size = batch_size
     super(BenchmarkCallbacks, self).__init__()
     self.log_steps = log_steps
+    self.mean_img_per_sec_file_dest = mean_img_per_sec_file_dest
     self.last_log_step = 0
     self.steps_before_epoch = 0
     self.steps_in_epoch = 0
     self.start_time = None
+    self.examples_per_second_list = []
 
   @property
   def global_steps(self):
@@ -66,11 +68,15 @@ class BenchmarkCallbacks(tf.keras.callbacks.Callback):
       elapsed_time = now - self.start_time
       steps_per_second = steps_since_last_log / elapsed_time
       examples_per_second = steps_per_second * self.batch_size
-
+      self.examples_per_second_list.append(examples_per_second)
+    
+#      print(
+#          'Step %d, Images per second: %.1f, Images_Average:  %.1f, Loss: %0.3f' % (self.global_steps, examples_per_second, self.average_example_per_second, logs['loss']
+#          ))
       print(
-          'Step %d, Images per second: %.1f, Loss: %0.3f' % (self.global_steps, examples_per_second, logs['loss']
+          'Step, %d, Images per second, %.1f' % (self.global_steps, examples_per_second
           ))
-
+      
       self.last_log_step = self.global_steps
       self.start_time = None
 
@@ -80,4 +86,11 @@ class BenchmarkCallbacks(tf.keras.callbacks.Callback):
 
     self.steps_before_epoch += self.steps_in_epoch
     self.steps_in_epoch = 0
+    del self.examples_per_second_list[0]
+    mean_img_per_sec = sum(self.examples_per_second_list)/len(self.examples_per_second_list)
+    print('Mean images per second: ', mean_img_per_sec)
+    if self.mean_img_per_sec_file_dest:
+       with open(self.mean_img_per_sec_file_dest, 'w') as log_file:
+            log_file.write(f'Mean images per sec: {mean_img_per_sec}, Batch size: {self.batch_size}')
+
 

@@ -232,7 +232,8 @@ def run(flags_obj):
   callbacks = common.get_callbacks(
       steps_per_epoch=steps_per_epoch,
       enable_checkpoint_and_export=flags_obj.enable_checkpoint_and_export,
-      model_dir=flags_obj.model_dir)
+      model_dir=flags_obj.model_dir,
+      mean_img_per_sec_file_dest = flags_obj.mean_img_per_sec_file_dest)
 
   # if multiple epochs, ignore the train_steps flag.
   if train_epochs <= 1 and flags_obj.train_steps:
