@@ -1,1 +1,0 @@
-Mean images per sec: 487.8239971909417, Batch size: 64
