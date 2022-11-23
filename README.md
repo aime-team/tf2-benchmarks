@@ -1,6 +1,6 @@
-# Tensorflow 2.x Benchmarks
+# Tensorflow 2 Benchmarks
 
-ImageNet (ResNet50) benchmarks for Tensorflow 2.x
+ImageNet (ResNet50) benchmarks for Tensorflow 2.9 and later
 
 ## Usage
 
