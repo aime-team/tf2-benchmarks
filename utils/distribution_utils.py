@@ -68,18 +68,17 @@ def _mirrored_cross_device_ops(all_reduce_alg, num_packs):
   """
   if all_reduce_alg is None:
     return None
-  mirrored_all_reduce_options = {
-      "nccl": tf.distribute.NcclAllReduce,
-      'to_one_device': tf.distribute.ReductionToOneDevice,
-      "hierarchical_copy": tf.distribute.HierarchicalCopyAllReduce
-  }
-  if all_reduce_alg not in mirrored_all_reduce_options:
+  if all_reduce_alg == 'nccl':
+    return tf.distribute.NcclAllReduce(num_packs=num_packs)
+  elif all_reduce_alg == 'to_one_device':
+    return tf.distribute.ReductionToOneDevice()
+  elif all_reduce_alg == 'hierarchical_copy':
+    return tf.distribute.HierarchicalCopyAllReduce(num_packs=num_packs)
+  else:     
     raise ValueError(
         "When used with `mirrored`, valid values for all_reduce_alg are "
         "['nccl', 'to_one_device', 'hierarchical_copy'].  Supplied value: {}".format(
             all_reduce_alg))
-  cross_device_ops_class = mirrored_all_reduce_options[all_reduce_alg]
-  return cross_device_ops_class(num_packs=num_packs)
 
 
 def get_distribution_strategy(distribution_strategy="mirrored",
@@ -158,7 +157,6 @@ def get_distribution_strategy(distribution_strategy="mirrored",
 
 def per_replica_batch_size(batch_size, num_gpus):
   """For multi-gpu, batch-size must be a multiple of the number of GPUs.
-
 
   Note that distribution strategy handles this automatically when used with
   Keras. For using with Estimator, we need to get per GPU batch.
