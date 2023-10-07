@@ -33,7 +33,6 @@ DTYPE_MAP = {
     "fp32": tf.float32,
 }
 
-
 def get_tf_dtype(flags_obj):
   if getattr(flags_obj, "fp16_implementation", None) == "graph_rewrite":
     # If the graph_rewrite is used, we build the graph with fp32, and let the
@@ -194,7 +193,7 @@ def define_performance(num_parallel_calls=False, inter_op=False, intra_op=False,
     if fp16_implementation:
       flags.DEFINE_enum(
           name="fp16_implementation", default="graph_rewrite",
-          enum_values=("keras', 'graph_rewrite"),
+          enum_values=["graph_rewrite", "keras"],
           help=help_wrap(
               "When --dtype=fp16, how fp16 should be implemented. This has no "
               "impact on correctness. 'keras' uses the "
